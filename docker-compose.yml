@@ -1,0 +1,33 @@
+version: '2'
+services:
+    web:
+        user: ${CURRENT_UID}
+        build:
+            context: ./
+            dockerfile: deploy/web.docker
+        volumes:
+            - ./src:/var/www
+        ports:
+            - "8080:80"
+    app:
+        user: ${CURRENT_UID}
+        build:
+            context: ./
+            dockerfile: deploy/app.docker
+        volumes:
+            - ./src:/var/www
+        environment:
+            - "DB_PORT=3306"
+            - "DB_HOST=database"
+    database:
+        image: mysql:5.7
+        environment:
+            - "MYSQL_ROOT_PASSWORD=guest"
+            - "MYSQL_DATABASE=laravel_app"
+        ports:
+            - "33061:3306"
+    composer:
+        image: composer:latest
+        volumes_from:
+            - web
+        working_dir: /var/www
